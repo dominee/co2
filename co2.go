@@ -87,6 +87,7 @@ func getOwner(ip string) string {
 // Colorizes the output
 func colorize(line string, ips []string, target string, token string) string {
 	// Define color attributes
+	color.NoColor = false
 	red := color.New(color.FgRed).SprintFunc()
 	green := color.New(color.FgGreen).SprintFunc()
 	yellow := color.New(color.FgYellow).SprintFunc()
