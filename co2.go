@@ -13,6 +13,28 @@ import (
 	gojsonq "github.com/thedevsaddam/gojsonq/v2"
 )
 
+// ipCache is map to store the runtime cache for ip owners to save API calls and identify the first occurance of IP in log
+type ipcache map[string]string
+
+var ipCache = make(ipcache)
+
+// isCached checks if the IP is already cached
+func isCached(ipCache ipcache, ip string) bool {
+	if _, ok := ipCache[ip]; ok {
+		return true
+	} else {
+		return false
+	}
+}
+
+func cacheIt(ipCache ipcache, ip string, owner string) {
+	ipCache[ip] = owner
+}
+
+func getCached(ipCache ipcache, ip string) string {
+	return ipCache[ip]
+}
+
 func main() {
 	// Parse command line arguments
 	showIDs := flag.Bool("i", false, "Display lines containing 'IDs:'")
@@ -59,12 +81,24 @@ func main() {
 	}
 }
 
+func getOwner(ip string) (string, bool) {
+	var owner string
+	var cacheHit bool
+	if isCached(ipCache, ip) {
+		owner = getCached(ipCache, ip)
+		cacheHit = true
+	} else {
+		owner = getNewOwner(ip)
+		cacheIt(ipCache, ip, owner)
+		cacheHit = false
+	}
+	return owner, cacheHit
+}
+
 // Retrieves the name of the owner of an IP address using the Whois API
-func getOwner(ip string) string {
+func getNewOwner(ip string) string {
 
 	// json.objects.object[0]["resource-holder"].key = "ORG-Ds65-RIPE";
-	// json.objects.object[0]["resource-holder"].name = "Digmia s.r.o.";
-
 	url := fmt.Sprintf("http://rest.db.ripe.net/search.json?query-string=%s&resource-holder=true&type-filter=inetnum", ip)
 
 	// TODO: timeout
@@ -105,9 +139,17 @@ func colorize(line string, ips []string, target string, token string) string {
 
 	// Colorize the IP addresses
 	for _, ip := range ips {
-		// TODO CACHE
-		owner := getOwner(ip)
-		coloredIP := green(ip) + yellow(fmt.Sprintf(" (%s)", owner))
+		// get IP owner
+		owner, isCached := getOwner(ip)
+		var coloredIP string
+		if isCached {
+			// cahe HIT to indicate an already known IP
+			coloredIP = green(ip) + yellow(fmt.Sprintf(" (%s)", owner))
+		} else {
+			// cache MISS to indicate a new IP
+			coloredIP = red(ip) + yellow(fmt.Sprintf(" (%s)", owner))
+		}
+
 		line = strings.Replace(line, ip, coloredIP, 1)
 	}
 

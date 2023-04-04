@@ -6,9 +6,9 @@ import (
 	"testing"
 )
 
-func Test_getOwner_positive(t *testing.T) {
+func Test_getNewOwner_positive(t *testing.T) {
 	ip := "91.210.181.37"
-	result := getOwner(ip)
+	result, _ := getOwner(ip)
 	if result != "Digmia s.r.o." {
 		t.Error("incorrect result: expected 'Digmia s.r.o.', got", result)
 	} else {
@@ -17,9 +17,9 @@ func Test_getOwner_positive(t *testing.T) {
 
 }
 
-func Test_getOwner_negative(t *testing.T) {
+func Test_getNewOwner_negative(t *testing.T) {
 	ip := "192.168.0.1"
-	result := getOwner(ip)
+	result, _ := getOwner(ip)
 	if result != "Unknown" {
 		t.Error("incorrect result: expected 'Unknown', got", result)
 	} else {
@@ -44,7 +44,14 @@ func Test_colorize(t *testing.T) {
 	if result == line {
 		t.Error("incorrect result: no transfoormation on input, got", result)
 	} else {
-		fmt.Printf("[Test_colorize] %s \n", result)
+		fmt.Printf("[Test_colorize][MISS] %s \n", result)
+	}
+
+	resultCached := colorize(line, ip, target, token)
+	if result == line {
+		t.Error("incorrect result: no transfoormation on input, got", result)
+	} else {
+		fmt.Printf("[Test_colorize][HIT] %s \n", resultCached)
 	}
 
 }

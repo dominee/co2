@@ -13,9 +13,10 @@ test:
 	go test ./...
 .PHONY:test
 
-test_coverage:
+test-coverage:
 	@echo "$$(tput bold)Coverage test$$(tput sgr0)"
 	go test ./... -coverprofile=coverage.out
+	go tool cover -func=coverage.out
 .PHONY:test_coverage
 
 dep:
