@@ -10,17 +10,20 @@
 * Amends the source IP address with the name of its resource holder (IP block owner) obtained from RIPE DB.
 * Color highlighting to look more 1337 and to replace [ccze](https://github.com/cornet/ccze).
 * Runtime cache to minimize API calls and to identify new IPs in log (first occurence)
+* Persistent IP cache stored in json, also usable as custom IP annotations
 
 ### Planed features
 
-* Persistent IP cache stored in json, also usable as custom IP annotations
+* Parse input from locale file
 * Log minification for interaction polling on android phones (`termux`)
 
 ## Usage
 
 ```
-$ co2 [-i]
-  -i : Only show lines containing interactions
+Usage of ./co2:
+  -c string
+    	JSON cache file to use. (default "cache.json")
+  -i	Display lines containing interacions only.
 ```
 
 BEFORE: Example pipeline with public collaborator and `ccze`

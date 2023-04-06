@@ -18,3 +18,6 @@ coverage.out
 
 # Final binary
 co2
+
+# cache file
+cache.json

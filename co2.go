@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"net/http"
@@ -35,11 +36,46 @@ func getCached(ipCache ipcache, ip string) string {
 	return ipCache[ip]
 }
 
+func cacheSave(cache ipcache, filename string) {
+	// Marshal it to JSON, indented with 4 spaces
+	cachej, error := json.MarshalIndent(cache, "", "   ")
+	if error != nil {
+		fmt.Println(error)
+	}
+
+	// Write it to file
+	error = os.WriteFile(filename, cachej, 0644)
+	if error != nil {
+		fmt.Println(error)
+	}
+}
+
+func cacheLoad(cache ipcache, filename string) ipcache {
+	cached, err := os.ReadFile(filename)
+	if err != nil {
+		fmt.Print(err)
+	}
+	err = json.Unmarshal(cached, &cache)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	return cache
+}
+
 func main() {
 	// Parse command line arguments
-	showIDs := flag.Bool("i", false, "Display lines containing 'IDs:'")
+	showIDs := flag.Bool("i", false, "Display lines containing interacions only.")
+	cacheFileArg := flag.String("c", "cache.json", "JSON cache file to use.")
 	flag.Parse()
 
+	cacheFile := *cacheFileArg
+
+	// Restore cache from file if it exists
+	if _, err := os.Stat(cacheFile); err == nil {
+		_ = cacheLoad(ipCache, cacheFile)
+	}
+
+	// Regexp for line parts
 	scanner := bufio.NewScanner(os.Stdin)
 	ipRegex := regexp.MustCompile(`\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b`)
 	tokenRegex := regexp.MustCompile(`\b[0-9a-z]{33}`)
@@ -79,6 +115,9 @@ func main() {
 
 		fmt.Println(line)
 	}
+
+	// Save the cache before we finish
+	cacheSave(ipCache, cacheFile)
 }
 
 func getOwner(ip string) (string, bool) {

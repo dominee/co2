@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
+	"os"
+	"reflect"
 	"testing"
 )
 
@@ -12,7 +12,7 @@ func Test_getNewOwner_positive(t *testing.T) {
 	if result != "Digmia s.r.o." {
 		t.Error("incorrect result: expected 'Digmia s.r.o.', got", result)
 	} else {
-		fmt.Printf("[Test_getOwner] %s -> %s\n", ip, result)
+		t.Logf("[Test_getOwner] %s -> %s\n", ip, result)
 	}
 
 }
@@ -23,7 +23,7 @@ func Test_getNewOwner_negative(t *testing.T) {
 	if result != "Unknown" {
 		t.Error("incorrect result: expected 'Unknown', got", result)
 	} else {
-		fmt.Printf("[Test_getOwner] %s -> %s\n", ip, result)
+		t.Logf("[Test_getOwner] %s -> %s\n", ip, result)
 	}
 
 }
@@ -34,7 +34,7 @@ func Test_colorize(t *testing.T) {
 	target := "q6x04kc0oqm8v40t93pl34eg77dy1p0dp.ctdl.ml"
 	token := " q6x04kc0oqm8v40t93pl34eg77dy1p0dp" // token has a leading space
 
-	testline, err := ioutil.ReadFile("testdata/testline.txt")
+	testline, err := os.ReadFile("testdata/testline.txt")
 	if err != nil {
 		t.Error("testline.txt: Unable to read file.")
 	}
@@ -44,14 +44,35 @@ func Test_colorize(t *testing.T) {
 	if result == line {
 		t.Error("incorrect result: no transfoormation on input, got", result)
 	} else {
-		fmt.Printf("[Test_colorize][MISS] %s \n", result)
+		t.Logf("[Test_colorize][MISS] %s \n", result)
 	}
 
 	resultCached := colorize(line, ip, target, token)
 	if result == line {
 		t.Error("incorrect result: no transfoormation on input, got", result)
 	} else {
-		fmt.Printf("[Test_colorize][HIT] %s \n", resultCached)
+		t.Logf("[Test_colorize][HIT] %s \n", resultCached)
 	}
 
+}
+
+func Test_Cache(t *testing.T) {
+	var cacheFile = "testdata/cache.json"
+	var testCache1 = make(ipcache)
+	var testCache2 = make(ipcache)
+
+	// Load cache from test file
+	_ = cacheLoad(testCache1, cacheFile)
+	// Save it
+	cacheSave(testCache1, cacheFile)
+	// Load it again
+	_ = cacheLoad(testCache2, cacheFile)
+
+	result := reflect.DeepEqual(testCache1, testCache2)
+
+	if !result {
+		t.Error("incorrect result: cache data does not match", result)
+	} else {
+		t.Log("[Test_Cache] OK:")
+	}
 }
