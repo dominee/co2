@@ -2,10 +2,7 @@ module co2
 
 go 1.19
 
-require (
-	github.com/fatih/color v1.15.0
-	github.com/thedevsaddam/gojsonq/v2 v2.5.2
-)
+require github.com/fatih/color v1.15.0
 
 require (
 	github.com/mattn/go-colorable v0.1.13 // indirect

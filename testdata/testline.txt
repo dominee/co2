@@ -1,1 +1,1 @@
-2023-03-24 13:25:46.945 : Received DNS query with type A from [37.9.169.172] for [q6x04kc0oqm8v40t93pl34eg77dy1p0dp.ctdl.ml] containing interaction IDs: q6x04kc0oqm8v40t93pl34eg77dy1p0dp
+2023-03-24 13:25:46.945 : Received DNS query with type A from [37.9.169.172] for [q6x04kc0oqm8v40t93pl34eg77dy1p0dp.citadelo.com] containing interaction IDs: q6x04kc0oqm8v40t93pl34eg77dy1p0dp

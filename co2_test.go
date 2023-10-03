@@ -1,16 +1,31 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"reflect"
 	"testing"
 )
 
+func setup() {
+	apiKey = os.Getenv("IP2LOCATION_API_KEY")
+	if apiKey == "" {
+		fmt.Println("IP2LOCATION_API_KEY environment variable is not set.")
+		os.Exit(1)
+	}
+}
+
+func TestMain(m *testing.M) {
+	setup()
+	code := m.Run()
+	os.Exit(code)
+}
+
 func Test_getNewOwner_positive(t *testing.T) {
 	ip := "91.210.181.37"
 	result, _ := getOwner(ip)
-	if result != "Digmia s.r.o." {
-		t.Error("incorrect result: expected 'Digmia s.r.o.', got", result)
+	if result != "SK / Digmia s.r.o." {
+		t.Error("incorrect result: expected 'SK / Digmia s.r.o.', got", result)
 	} else {
 		t.Logf("[Test_getOwner] %s -> %s\n", ip, result)
 	}
@@ -19,11 +34,12 @@ func Test_getNewOwner_positive(t *testing.T) {
 
 func Test_getNewOwner_negative(t *testing.T) {
 	ip := "192.168.0.1"
-	result, _ := getOwner(ip)
-	if result != "Unknown" {
-		t.Error("incorrect result: expected 'Unknown', got", result)
+	result, isHit := getOwner(ip)
+	fmt.Printf("cache: %t\n", isHit)
+	if result != "- / -" {
+		t.Error("incorrect result: expected '- / -', got", result)
 	} else {
-		t.Logf("[Test_getOwner] %s -> %s\n", ip, result)
+		t.Logf("[Test_getOwner] %s -> %s (%t)\n", ip, result, isHit)
 	}
 
 }
@@ -31,7 +47,7 @@ func Test_getNewOwner_negative(t *testing.T) {
 func Test_colorize(t *testing.T) {
 
 	ip := []string{"37.9.169.172"}
-	target := "q6x04kc0oqm8v40t93pl34eg77dy1p0dp.ctdl.ml"
+	target := "q6x04kc0oqm8v40t93pl34eg77dy1p0dp.ctl.sk"
 	token := " q6x04kc0oqm8v40t93pl34eg77dy1p0dp" // token has a leading space
 
 	testline, err := os.ReadFile("testdata/testline.txt")

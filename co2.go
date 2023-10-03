@@ -5,19 +5,20 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"regexp"
 	"strings"
 
 	color "github.com/fatih/color"
-	gojsonq "github.com/thedevsaddam/gojsonq/v2"
 )
 
 // ipCache is map to store the runtime cache for ip owners to save API calls and identify the first occurance of IP in log
 type ipcache map[string]string
 
 var ipCache = make(ipcache)
+var apiKey string = ""
 
 // isCached checks if the IP is already cached
 func isCached(ipCache ipcache, ip string) bool {
@@ -73,6 +74,12 @@ func main() {
 	// Restore cache from file if it exists
 	if _, err := os.Stat(cacheFile); err == nil {
 		_ = cacheLoad(ipCache, cacheFile)
+	}
+
+	apiKey = os.Getenv("IP2LOCATION_API_KEY")
+	if apiKey == "" {
+		fmt.Println("IP2LOCATION_API_KEY environment variable is not set.")
+		os.Exit(1)
 	}
 
 	// Regexp for line parts
@@ -137,22 +144,41 @@ func getOwner(ip string) (string, bool) {
 // Retrieves the name of the owner of an IP address using the Whois API
 func getNewOwner(ip string) string {
 
-	// json.objects.object[0]["resource-holder"].key = "ORG-Ds65-RIPE";
-	url := fmt.Sprintf("http://rest.db.ripe.net/search.json?query-string=%s&resource-holder=true&type-filter=inetnum", ip)
+	type Location struct {
+		IP          string  `json:"ip"`
+		CountryCode string  `json:"country_code"`
+		CountryName string  `json:"country_name"`
+		RegionName  string  `json:"region_name"`
+		CityName    string  `json:"city_name"`
+		Latitude    float64 `json:"latitude"`
+		Longitude   float64 `json:"longitude"`
+		ZipCode     string  `json:"zip_code"`
+		TimeZone    string  `json:"time_zone"`
+		ASN         string  `json:"asn"`
+		AS          string  `json:"as"`
+		IsProxy     bool    `json:"is_proxy"`
+	}
 
-	// TODO: timeout
+	url := fmt.Sprintf("https://api.ip2location.io/?key=%s&ip=%s", apiKey, ip)
+
 	resp, err := http.Get(url)
 	if err != nil {
-		return "Unknown"
+		panic(err)
 	}
 	defer resp.Body.Close()
 
-	result, err := gojsonq.New().Reader(resp.Body).From("objects").FindR("object.[0].resource-holder.name")
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		// TODO: try to get netname as fallback
-		return "Unknown"
+		panic(err)
 	}
-	name, _ := result.String()
+
+	var loc Location
+	err = json.Unmarshal(body, &loc)
+	if err != nil {
+		panic(err)
+	}
+
+	name := fmt.Sprintf("%s / %s", loc.CountryCode, loc.AS)
 
 	return name
 }

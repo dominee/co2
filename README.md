@@ -7,17 +7,21 @@
 
 ## Features
 
-* Amends the source IP address with the name of its resource holder (IP block owner) obtained from RIPE DB.
+* Amends the source IP address with the name of its resource holder (IP block owner + Country code) obtained from [ip2location.io](https://www.ip2location.io/).
 * Color highlighting to look more 1337 and to replace [ccze](https://github.com/cornet/ccze).
-* Runtime cache to minimize API calls and to identify new IPs in log (first occurence)
-* Persistent IP cache stored in json, also usable as custom IP annotations
+* Runtime cache to minimize API calls and to identify new IPs in log (first occurence = red, cached = green).
+* Persistent IP cache stored in json, also usable as custom IP annotations.
+* Show interactions only.
 
 ### Planed features
 
-* Parse input from locale file
+* ~~Parse input from locale file~~ Just use `cat` to process local files.
 * Log minification for interaction polling on android phones (`termux`)
 
 ## Usage
+
+As [ip2location.io](https://www.ip2location.io/) requires and API key do not forget to `export IP2LOCATION_API_KEY="YOURAPIKEYHERELOL"` . You should be ok with the 30,000 form the free plan.
+
 
 ```
 Usage of ./co2:
