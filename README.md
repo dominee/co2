@@ -4,6 +4,9 @@
 
 ![example-output](example.png)
 
+# News 
+
+* `v0.1` - Now with [releases](https://github.com/dominee/co2/releases).
 
 ## Features
 

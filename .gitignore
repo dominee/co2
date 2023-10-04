@@ -18,6 +18,10 @@ coverage.out
 
 # Final binary
 co2
+co2-*
 
 # cache file
 cache.json
+
+# Dir for releases
+releases
