@@ -48,7 +48,7 @@ build-all: vet
 	@echo "$$(tput bold)Building all targets$$(tput sgr0)"
 	GOARCH=amd64 GOOS=darwin go build -o ${BINARY_NAME}-darwin ${BINARY_NAME}.go
 	GOARCH=amd64 GOOS=linux go build -o ${BINARY_NAME}-linux ${BINARY_NAME}.go
-	GOARCH=amd64 GOOS=windows go build -o ${BINARY_NAME}-windows ${BINARY_NAME}.go
+	GOARCH=amd64 GOOS=windows go build -o ${BINARY_NAME}-windows.exe ${BINARY_NAME}.go
 .PHONY:build-all
 
 run: build
